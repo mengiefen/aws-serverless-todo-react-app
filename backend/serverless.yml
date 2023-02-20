@@ -8,7 +8,7 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-plugin-tracing
   - serverless-reqvalidator-plugin
-  - serverless-aws-documentation
+  # - serverless-aws-documentation
 
 provider:
   name: aws
@@ -43,13 +43,6 @@ provider:
           Resource: '*'
 
 functions:
-  Hello:
-    handler: src/lambda/http/hello.handler
-    events:
-      - http:
-          method: GET
-          path: hello
-          cors: true
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
