@@ -3,6 +3,7 @@ const AWSXRay = require('aws-xray-sdk')
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
+import { TodoUpdate } from '../models/TodoUpdate'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
@@ -20,6 +21,7 @@ export class TodosAccess {
     private readonly userIdIndex = process.env.USER_ID_INDEX
   ) {}
 
+  //  gets all todos for a user
   async getAllTodos(userId: string): Promise<TodoItem[]> {
     logger.info('Getting all todos')
 
@@ -36,5 +38,64 @@ export class TodosAccess {
 
     const items = result.Items
     return items as TodoItem[]
+  }
+
+  //  create todo item
+  async createTodoItem(todoItem: TodoItem): Promise<TodoItem> {
+    logger.info('Creating a todo item')
+    await this.docClient
+      .put({
+        TableName: this.todosTable,
+        Item: todoItem
+      })
+      .promise()
+
+    return todoItem
+  }
+
+  //  Update todo items
+  async updateTodoItem(
+    todoId: string,
+    userId: string,
+    updatedTodo: TodoUpdate
+  ): Promise<TodoUpdate> {
+    logger.info('Updating a todo item')
+    const result = await this.docClient
+      .update({
+        TableName: this.todosTable,
+        Key: {
+          todoId,
+          userId
+        },
+        UpdateExpression: 'set #name = :name, dueDate = :dueDate, done = :done',
+        ExpressionAttributeValues: {
+          ':name': updatedTodo.name,
+          ':dueDate': updatedTodo.dueDate,
+          ':done': updatedTodo.done
+        },
+        ExpressionAttributeNames: {
+          '#name': 'name'
+        },
+        ReturnValues: 'ALL_NEW'
+      })
+      .promise()
+    logger.info('result', result)
+    return result.Attributes as TodoUpdate
+  }
+  //  delete todo items
+  async deleteTodoItem(todoId: string, userId: string): Promise<TodoItem> {
+    logger.info('Deleting a todo item')
+    const result = await this.docClient
+      .delete({
+        TableName: this.todosTable,
+        Key: {
+          todoId,
+          userId
+        },
+        ReturnValues: 'ALL_OLD'
+      })
+      .promise()
+
+    return result.Attributes as TodoItem
   }
 }
