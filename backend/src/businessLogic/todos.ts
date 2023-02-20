@@ -3,7 +3,7 @@ import { CreateTodoRequest } from './../requests/CreateTodoRequest'
 import { TodosAccess } from '../dataLayer/todoAcces'
 import { TodoItem } from '../models/TodoItem'
 import { createLogger } from '../utils/logger'
-import { getAttachmentUrl } from '../helpers/attachmentUtils'
+import { getAttachmentUrl, getUploadUrl } from '../helpers/attachmentUtils'
 import { v4 as uuid } from 'uuid'
 import { TodoUpdate } from '../models/TodoUpdate'
 
@@ -52,4 +52,27 @@ export async function deleteTodo(
   userId: string
 ): Promise<TodoItem> {
   return await todoAccess.deleteTodoItem(todoId, userId)
+}
+
+export async function createAttachmentPresignedUrl(
+  todoId: string,
+  userId: string
+): Promise<string> {
+  logger.info(
+    'Creating a presigned url for user to upload an attachment',
+    userId
+  )
+  const todo = await getTodoById(todoId, userId)
+
+  todo.attachmentUrl = getAttachmentUrl(todoId)
+  logger.info('Updating todo item with attachment url', userId, todoId, todo)
+  await todoAccess.updateTodoItem(todoId, userId, todo)
+  return getUploadUrl(todoId)
+}
+
+export async function getTodoById(
+  todoId: string,
+  userId: string
+): Promise<TodoItem> {
+  return await todoAccess.getTodoById(todoId, userId)
 }
