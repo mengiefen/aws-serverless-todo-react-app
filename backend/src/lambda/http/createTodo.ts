@@ -13,7 +13,7 @@ export const handler = middy(
     const userId = getUserId(event)
     if (!userId) {
       return http_response._404({
-        message: 'The user is not found'
+        message: 'The user is not found!!'
       })
     }
     const newTodo = await createNewTodo(body, userId)

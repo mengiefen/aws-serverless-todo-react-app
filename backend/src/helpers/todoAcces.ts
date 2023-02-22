@@ -67,11 +67,13 @@ export class TodosAccess {
           todoId,
           userId
         },
-        UpdateExpression: 'set #name = :name, dueDate = :dueDate, done = :done',
+        UpdateExpression:
+          'set #name = :name, dueDate = :dueDate, done = :done, attachmentUrl = :attachmentUrl',
         ExpressionAttributeValues: {
           ':name': updatedTodo.name,
           ':dueDate': updatedTodo.dueDate,
-          ':done': updatedTodo.done
+          ':done': updatedTodo.done,
+          ':attachmentUrl': updatedTodo.attachmentUrl || ''
         },
         ExpressionAttributeNames: {
           '#name': 'name'

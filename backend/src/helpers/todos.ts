@@ -25,14 +25,14 @@ export async function createNewTodo(
 ): Promise<TodoItem> {
   logger.info('Creating a todo item')
   const todoId = uuid()
-  const url = getAttachmentUrl(todoId)
+  // const url = getAttachmentUrl(todoId)
   const createdAt = new Date().toISOString()
   const newItem = {
     userId,
     todoId,
     createdAt,
     done: false,
-    attachmentUrl: url,
+    attachmentUrl: '',
     ...newTodo
   }
 
@@ -59,8 +59,8 @@ export async function uploadImage(
   userId: string
 ): Promise<string> {
   logger.info('Creating a presigned url to image attachement', userId)
-  const todo = await getTodoById(todoId, userId)
 
+  const todo = await getTodoById(todoId, userId)
   todo.attachmentUrl = getAttachmentUrl(todoId)
   logger.info('Updating todo with attachment url', userId, todoId, todo)
   await todoAccess.updateTodoItem(todoId, userId, todo)
