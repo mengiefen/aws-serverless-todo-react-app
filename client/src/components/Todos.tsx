@@ -64,7 +64,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     try {
       await deleteTodo(this.props.auth.getIdToken(), todoId)
       this.setState({
-        todos: this.state.todos.filter(todo => todo.todoId !== todoId)
+        todos: this.state.todos.filter((todo) => todo.todoId !== todoId)
       })
     } catch {
       alert('Todo deletion failed')
@@ -77,15 +77,17 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
         name: todo.name,
         dueDate: todo.dueDate,
-        done: !todo.done
+        done: !todo.done,
+        attachmentUrl: todo.attachmentUrl
       })
+
       this.setState({
         todos: update(this.state.todos, {
           [pos]: { done: { $set: !todo.done } }
         })
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('Todo update failed')
     }
   }
 
