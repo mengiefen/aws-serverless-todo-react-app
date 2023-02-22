@@ -17,10 +17,7 @@ export const getAttachmentUrl = (todoId: string) => {
 }
 
 export const getUploadUrl = (todoId: string) => {
-  logger.info(
-    'Creating a presigned url for user to upload an attachment',
-    todoId
-  )
+  logger.info('Creating a presigned url for an attachment', todoId)
   const result = s3.getSignedUrl('putObject', {
     Bucket: bucketName,
     Key: todoId,

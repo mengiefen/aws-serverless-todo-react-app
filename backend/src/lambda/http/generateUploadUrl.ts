@@ -1,10 +1,9 @@
 import 'source-map-support/register'
-
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
-
-import { createAttachmentPresignedUrl } from '../../businessLogic/todos'
+import { http_response } from '../../common/http-response'
+import { uploadImage } from '../../helpers/todos'
 import { getUserId } from '../utils'
 
 export const handler = middy(
@@ -14,24 +13,12 @@ export const handler = middy(
     const userId = getUserId(event)
     console.log('Generating upload todoId & userId', { todoId, userId })
 
-    const url = await createAttachmentPresignedUrl(todoId, userId)
-    if (!url || url === 'Not Found') {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({
-          error: 'Todo item not found',
-          urserId: userId,
-          todoId
-        })
-      }
-    }
+    const url = await uploadImage(todoId, userId)
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        uploadUrl: url
-      })
+    if (!url || url === 'Not Found') {
+      http_response._404({ error: `The url for todoId: ${todoId} not found!` })
     }
+    return http_response._200({ uploadUrl: url })
   }
 )
 

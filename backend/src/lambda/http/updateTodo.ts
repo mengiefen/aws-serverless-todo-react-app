@@ -3,9 +3,10 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
-import { updateTodo } from '../../businessLogic/todos'
+import { updateTodo } from '../../helpers/todos'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { getUserId } from '../utils'
+import { http_response } from '../../common/http-response'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -13,11 +14,15 @@ export const handler = middy(
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
     const userId = getUserId(event)
-    await updateTodo(todoId, userId, updatedTodo)
-    return {
-      statusCode: 200,
-      body: JSON.stringify({})
+    if (!userId) {
+      return http_response._404({
+        message: 'The user is not found'
+      })
     }
+    const todo = await updateTodo(todoId, userId, updatedTodo)
+    return http_response._201({
+      item: todo
+    })
   }
 )
 
